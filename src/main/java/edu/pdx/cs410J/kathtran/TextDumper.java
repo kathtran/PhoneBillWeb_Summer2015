@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * a nicely formatted phone bill into a text file.
  *
  * @author Kathleen Tran
- * @version 3.0
+ * @version 4.0
  */
 public class TextDumper implements PhoneBillDumper {
 

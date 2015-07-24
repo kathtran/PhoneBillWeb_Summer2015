@@ -18,7 +18,7 @@ import java.util.Date;
  * details of the phone call.
  *
  * @author Kathleen Tran
- * @version 3.0
+ * @version 4.0
  */
 class PhoneCall extends AbstractPhoneCall implements Comparable {
 
