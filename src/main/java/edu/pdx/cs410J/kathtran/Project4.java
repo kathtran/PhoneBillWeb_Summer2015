@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represents Project 3 and contains the main method that runs the Phone
+ * Represents Project 4 and contains the main method that runs the Phone
  * Bill Application in addition to various helper methods that correct
  * and/or validate user-supplied command line arguments that are used to
  * construct and populate the phone bill.
@@ -77,7 +77,7 @@ public class Project4 {
         int port;
         try {
             port = Integer.parseInt( portString );
-            
+
         } catch (NumberFormatException ex) {
             usage("Port \"" + portString + "\" must be an integer");
             return;
@@ -109,7 +109,7 @@ public class Project4 {
 
         System.out.println(response.getContent());
 
-        System.exit(0);
+//        System.exit(0);
 
         try {
             Project4 project4 = new Project4();
@@ -424,7 +424,11 @@ public class Project4 {
                 "\t\twithin the phone bills are now listed chronologically by their\n" +
                 "\t\tbeginning time, with the phone numbers serving as tie-breakers\n" +
                 "\t\tin appropriate cases. In addition, time stamps are no longer\n" +
-                "\t\trecorded in 24-hour time.\n\n" +
+                "\t\trecorded in 24-hour time.\n" +
+                "v4.0\tA server/client has now been established using REST to incorporate\n" +
+                "\t\ta web service to the program. Users may add phone bills to the\n" +
+                "\t\tserver and search for phone calls belonging to some given phone bill\n" +
+                "\t\tbetween some given time span.\n\n" +
 
                 "Commands\n" +
                 "--------\n\n" +
@@ -451,8 +455,8 @@ public class Project4 {
                 "name may be delimited by double quotes.\n" +
                 "\n" +
                 "----------------------------------------------------------\n" +
-                "CS410J PROJECT 3: PRETTY PRINTING A PHONE BILL\n\n" +
-                "AUTHOR: KATHLEEN TRAN\nLAST MODIFIED: 7/21/2015\n\n");
+                "CS410J PROJECT 4: A REST-FULL PHONE BILL WEB SERVICE\n\n" +
+                "AUTHOR: KATHLEEN TRAN\nLAST MODIFIED: 7/24/2015\n\n");
         System.exit(1);
     }
 }
