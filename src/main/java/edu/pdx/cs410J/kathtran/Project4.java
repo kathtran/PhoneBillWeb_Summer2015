@@ -80,23 +80,40 @@ public class Project4 {
             }
         }
 
-        for (String arg : args) {
-            if (hostName == null) {
-                hostName = arg;
-
-            } else if ( portString == null) {
-                portString = arg;
-
-            } else if (key == null) {
-                key = arg;
-
-            } else if (value == null) {
-                value = arg;
-
-            } else {
-                usage("Extraneous command line argument: " + arg);
+        for (int i = 0; i < args.length; ++i) {
+            if (args[i].equals("-host") && args[i+1] != null &&
+                    !args[i].equals("-port") && !args[i].equals("-search") && !args[i].equals("-print")) {
+                hostName = args[i+1];
+                index += 2;
+            }
+            if (args[i].equals("-port") && args[i+1] != null &&
+                    !args[i].equals("-host") && !args[i].equals("-search") && !args[i].equals("-print")) {
+                portString = args[i+1];
+                index += 2;
+            }
+            if (args[i].equals("-search") && args[i+1] != null &&
+                    !args[i].equals("-host") && !args[i].equals("-port") && !args[i].equals("-print")) {
+                //TODO
             }
         }
+
+//        for (String arg : args) {
+//            if (hostName == null) {
+//                hostName = arg;
+//
+//            } else if ( portString == null) {
+//                portString = arg;
+//
+//            } else if (key == null) {
+//                key = arg;
+//
+//            } else if (value == null) {
+//                value = arg;
+//
+//            } else {
+//                usage("Extraneous command line argument: " + arg);
+//            }
+//        }
 
         if (hostName == null) {
             usage( MISSING_ARGS );
