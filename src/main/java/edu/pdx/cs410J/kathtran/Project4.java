@@ -49,6 +49,37 @@ public class Project4 {
         String key = null;
         String value = null;
 
+        PhoneBill phoneBill = null;
+        String customer;
+        String callerNumber = null;
+        String calleeNumber = null;
+        String startTime = null;
+        String endTime = null;
+        boolean printCall = false;
+        int index = 0;
+
+        Project4 project4 = new Project4();
+
+        for (String arg : args) {
+            if (arg.equals("-README"))
+                project4.readme();
+        }
+
+        for (String arg : args) {
+            if (arg.equals("-print")) {
+                printCall = true;
+                index += 1;
+            }
+        }
+
+        for (String arg : args) {
+            if (arg.startsWith("-") && !arg.equals("-print") &&
+                    !arg.equals("-host") && !arg.equals("-port") && !arg.equals("-search")) {
+                System.err.println("Unknown command line option");
+                System.exit(1);
+            }
+        }
+
         for (String arg : args) {
             if (hostName == null) {
                 hostName = arg;
@@ -107,78 +138,11 @@ public class Project4 {
             return;
         }
 
-        System.out.println(response.getContent());
-
-//        System.exit(0);
-
+        //************************** PARSING ARGUMENTS **************************//
         try {
-            Project4 project4 = new Project4();
-
-            for (String arg : args) {
-                if (arg.equals("-README"))
-                    project4.readme();
-            }
-
-            boolean printCall = false;                  // Markers used to check
-            boolean loadPhoneBill = false;              // for the presence of
-            boolean prettyPrintToFile = false;          // each option in the
-            boolean prettyPrintToStdOut = false;        // arguments provided
-            String fileName = null;
-            String prettyFile = null;
-            int index = 0;
-            for (int i = 0; i < args.length; ++i) {
-                if (args[i].equals("-print")) {
-                    printCall = true;
-                    index += 1;
-                } else if (args[i].equals("-textFile") && args[i + 1] != null) {
-                    loadPhoneBill = true;
-                    fileName = project4.correctExtension(args[i + 1]);
-                    index += 2;
-                } else if (args[i].equals("-pretty") && args[i + 1] != null) {
-                    if (args[i + 1].equals("-"))
-                        prettyPrintToStdOut = true;
-                    else {
-                        prettyPrintToFile = true;
-                        prettyFile = project4.correctExtension(args[i + 1]);
-                    }
-                    index += 2;
-                }
-            }
-
-            if (fileName != null && prettyFile != null && fileName.equals(prettyFile)) {
-                System.err.println("The same file name may not be used for two different options. " +
-                        "Please rename one of them and try again.");
-                System.exit(1);
-            }
-
-            for (String arg : args) {
-                if (arg.startsWith("-") && !arg.equals("-print") &&
-                        !arg.equals("-textFile") && !arg.equals("-pretty")) {
-                    if ((fileName != null && fileName.contains("-") && !arg.equals(fileName)) ||
-                            (prettyFile != null && prettyFile.contains("-") && !arg.equals(prettyFile))) {
-                        System.err.println("Unknown command line option");
-                        System.exit(1);
-                    }
-                }
-            }
-
-            TextParser textParser = new TextParser();
-            TextDumper textDumper = new TextDumper();
-            boolean fileExists = false;
-            PhoneBill phoneBill = null;
-            if (loadPhoneBill && fileName != null) {
-                textParser.setFileName(fileName);
-                textDumper.setFileName(fileName);
-
-                File fileCheckBefore = new File(fileName);
-                fileExists = fileCheckBefore.exists();
-
-                phoneBill = (PhoneBill) textParser.parse();
-            }
-
             if (args[index] != null && args[index].length() > 1) {
-                if (!fileExists)
-                    phoneBill = new PhoneBill(project4.correctNameCasing(args[index]));
+                customer = project4.correctNameCasing(args[index]);
+                phoneBill = new PhoneBill(customer);
                 index += 1;
             } else {
                 System.err.println("Cannot identify the customer name. " +
@@ -186,10 +150,6 @@ public class Project4 {
                 System.exit(1);
             }
 
-            String callerNumber = null;     // Temporary Strings used to
-            String calleeNumber = null;     // hold each requirement of
-            String startTime = null;        // the phone call record.
-            String endTime = null;
             if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
                 callerNumber = args[index];
                 index += 1;
@@ -206,19 +166,19 @@ public class Project4 {
                         "You may want to check the order and/or formatting of your arguments.");
                 System.exit(1);
             }
-            if (args[index] != null && args[index + 1] != null && project4.isValidDateAndTime(args[index], args[index + 1])) {
-                startTime = args[index];
-                startTime = startTime.concat(" " + args[index + 1]);
-                index += 2;
+            if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
+                    project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
+                startTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                index += 3;
             } else {
                 System.err.println("Cannot identify the start time. " +
                         "You may want to check the order and/or formatting of your arguments.");
                 System.exit(1);
             }
-            if (args[index] != null && args[index + 1] != null && project4.isValidDateAndTime(args[index], args[index + 1])) {
-                endTime = args[index];
-                endTime = endTime.concat(" " + args[index + 1]);
-                index += 2;
+            if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
+                    project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
+                endTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                index += 3;
             } else {
                 System.err.println("Cannot identify the end time. " +
                         "You may want to check the order and/or formatting of your arguments.");
@@ -234,26 +194,7 @@ public class Project4 {
 
             if (printCall)
                 System.out.println(phoneBill.getMostRecentPhoneCall().toString());
-            phoneBill.sortPhoneCalls();
-            if (loadPhoneBill) {
-                File fileCheckAfter = new File(textDumper.getFileName());
-                fileExists = fileCheckAfter.exists();
-                if (fileExists) {
-                    if (textDumper.checkCustomerName(phoneBill.getCustomer()))
-                        textDumper.dump(phoneBill);
-                    else {
-                        System.err.println("The file name specified already exists! However, it belongs to a different customer. " +
-                                "\nThe phone bill record was not saved. You may either specify a different file name or\n" +
-                                "check to make sure that your supplied customer name matches the one on file.");
-                        System.exit(1);
-                    }
-                } else
-                    textDumper.dump(phoneBill);
-            }
-            if (prettyPrintToFile)
-                textDumper.prettyDumper(prettyFile, phoneBill);
-            else if (prettyPrintToStdOut)
-                System.out.print(phoneBill.prettyPrint());
+//            phoneBill.sortPhoneCalls();
         } catch (ArrayIndexOutOfBoundsException ex) {
             System.err.println("Missing and/or malformatted command line arguments");
             System.exit(1);
@@ -263,30 +204,27 @@ public class Project4 {
         } catch (ParseException ex) {
             System.err.println("Invalid date(s) entered");
             System.exit(1);
-        } catch (IOException ex) {
-            System.err.println("Invalid and/or malformatted text file");
-            System.exit(1);
-        } catch (ParserException ex) {
-            System.err.println("Something went wrong whilst attempting to parse the specified file");
-            System.exit(1);
         }
+
+        System.out.println(response.getContent());
+
+        System.exit(0);
     }
 
     /**
      * Makes sure that the give response has the expected HTTP status code
-     * @param code The expected status code
+     *
+     * @param code     The expected status code
      * @param response The response from the server
      */
-    private static void checkResponseCode( int code, HttpRequestHelper.Response response )
-    {
+    private static void checkResponseCode(int code, HttpRequestHelper.Response response) {
         if (response.getCode() != code) {
             error(String.format("Expected HTTP code %d, got code %d.\n\n%s", code,
-                                response.getCode(), response.getContent()));
+                    response.getCode(), response.getContent()));
         }
     }
 
-    private static void error( String message )
-    {
+    private static void error(String message) {
         PrintStream err = System.err;
         err.println("** " + message);
 
@@ -295,10 +233,10 @@ public class Project4 {
 
     /**
      * Prints usage information for this program and exits
+     *
      * @param message An error message to print
      */
-    private static void usage( String message )
-    {
+    private static void usage(String message) {
         PrintStream err = System.err;
         err.println("** " + message);
         err.println();
@@ -356,15 +294,16 @@ public class Project4 {
      *
      * @param dateInput the month, day, and year
      * @param timeInput the hour and minute(s)
+     * @param timeMark  am/pm marker
      * @return True if the both the date and formatting are valid, otherwise false
      * @throws NumberFormatException when the argument cannot be parsed into an Integer
      * @throws ParseException        when the date is invalid
      */
-    public boolean isValidDateAndTime(String dateInput, String timeInput) throws NumberFormatException, ParseException {
+    public boolean isValidDateAndTime(String dateInput, String timeInput, String timeMark) throws NumberFormatException, ParseException {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         dateFormat.setLenient(false);
         dateFormat.parse(dateInput);
-        return isValidTimeOfDay(timeInput);
+        return isValidTimeOfDay(timeInput) && (timeMark.equals("AM") || timeMark.equals("PM"));
     }
 
     /**
@@ -376,7 +315,7 @@ public class Project4 {
      * @return True if the form is valid, otherwise false
      */
     public boolean isValidTimeOfDay(String timeToCheck) {
-        Pattern timeFormat = Pattern.compile("([01]?[0-9]|2[0-3]):[0-5][0-9]");
+        Pattern timeFormat = Pattern.compile("(0?[1-9]|1[0-2]):[0-5][0-9]");
         Matcher timeToBeChecked = timeFormat.matcher(timeToCheck);
         return timeToBeChecked.matches();
     }
@@ -424,7 +363,7 @@ public class Project4 {
                 "\t\twithin the phone bills are now listed chronologically by their\n" +
                 "\t\tbeginning time, with the phone numbers serving as tie-breakers\n" +
                 "\t\tin appropriate cases. In addition, time stamps are no longer\n" +
-                "\t\trecorded in 24-hour time.\n" +
+                "\t\trecorded in 24-hour time.\n\n" +
                 "v4.0\tA server/client has now been established using REST to incorporate\n" +
                 "\t\ta web service to the program. Users may add phone bills to the\n" +
                 "\t\tserver and search for phone calls belonging to some given phone bill\n" +
@@ -456,7 +395,7 @@ public class Project4 {
                 "\n" +
                 "----------------------------------------------------------\n" +
                 "CS410J PROJECT 4: A REST-FULL PHONE BILL WEB SERVICE\n\n" +
-                "AUTHOR: KATHLEEN TRAN\nLAST MODIFIED: 7/24/2015\n\n");
+                "AUTHOR: KATHLEEN TRAN\nLAST MODIFIED: 7/26/2015\n\n");
         System.exit(1);
     }
 }
