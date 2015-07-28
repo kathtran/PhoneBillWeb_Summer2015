@@ -29,7 +29,7 @@ public class PhoneBillServlet extends HttpServlet
     {
         response.setContentType( "text/plain" );
 
-        String key = getParameter( "key", request );
+        String key = getParameter( "customer", request );
         if (key != null) {
             writeValue(key, response);
 
@@ -48,9 +48,9 @@ public class PhoneBillServlet extends HttpServlet
     {
         response.setContentType( "text/plain" );
 
-        String key = getParameter( "key", request );
+        String key = getParameter( "customer", request );
         if (key == null) {
-            missingRequiredParameter( response, "key" );
+            missingRequiredParameter( response, "customer" );
             return;
         }
 

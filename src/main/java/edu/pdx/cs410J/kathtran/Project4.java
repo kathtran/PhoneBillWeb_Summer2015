@@ -1,9 +1,7 @@
 package edu.pdx.cs410J.kathtran;
 
-import edu.pdx.cs410J.ParserException;
 import edu.pdx.cs410J.web.HttpRequestHelper;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
@@ -34,6 +32,26 @@ import java.util.regex.Pattern;
  */
 public class Project4 {
 
+    private static String hostName;
+    private static String portString;
+    private static String key;
+    private static String value;
+    private static boolean hostFlag = false;
+    private static boolean portFlag = false;
+
+    private static String searchAfter;
+    private static String searchBefore;
+    private static boolean search = false;
+
+    private static PhoneBill phoneBill;
+    private static String customer;
+    private static String callerNumber;
+    private static String calleeNumber;
+    private static String startTime;
+    private static String endTime;
+    private static boolean printCall = false;
+    private static int index = 0;
+
     public static final String MISSING_ARGS = "Missing command line arguments";
 
     /**
@@ -44,51 +62,35 @@ public class Project4 {
      * @param args options or arguments for the phone bill, or any combination of both.
      */
     public static void main(String... args) {
+
+        Project4 project4 = new Project4();
+
+        for (String arg : args) {
+            if (arg.equals("-README"))
+                project4.readme();
+        }
+
+        for (String arg : args) {
+            if (arg.equals("-print")) {
+                printCall = true;
+                index += 1;
+            }
+        }
+
+        for (String arg : args) {
+            if (arg.startsWith("-") && !arg.equals("-print") &&
+                    !arg.equals("-host") && !arg.equals("-port") && !arg.equals("-search")) {
+                System.err.println("Unknown command line option");
+                System.exit(1);
+            }
+        }
+
         try {
-            String hostName = null;
-            String portString = null;
-            String key = null;
-            String value = null;
-
-            String searchAfter = null;
-            String searchBefore = null;
-            boolean search = false;
-
-            PhoneBill phoneBill = null;
-            String customer;
-            String callerNumber = null;
-            String calleeNumber = null;
-            String startTime = null;
-            String endTime = null;
-            boolean printCall = false;
-            int index = 0;
-
-            Project4 project4 = new Project4();
-
-            for (String arg : args) {
-                if (arg.equals("-README"))
-                    project4.readme();
-            }
-
-            for (String arg : args) {
-                if (arg.equals("-print")) {
-                    printCall = true;
-                    index += 1;
-                }
-            }
-
-            for (String arg : args) {
-                if (arg.startsWith("-") && !arg.equals("-print") &&
-                        !arg.equals("-host") && !arg.equals("-port") && !arg.equals("-search")) {
-                    System.err.println("Unknown command line option");
-                    System.exit(1);
-                }
-            }
-
             for (int i = 0; i < args.length; ++i) {
                 if (args[i].equals("-host") && args[i + 1] != null &&
                         !args[i].equals("-port") && !args[i].equals("-search") && !args[i].equals("-print")) {
                     hostName = args[i + 1];
+                    hostFlag = true;
                     index += 2;
                 } else {
                     System.err.println("Missing and/or malformatted hostname");
@@ -97,6 +99,7 @@ public class Project4 {
                 if (args[i].equals("-port") && args[i + 1] != null &&
                         !args[i].equals("-host") && !args[i].equals("-search") && !args[i].equals("-print")) {
                     portString = args[i + 1];
+                    portFlag = true;
                     index += 2;
                 } else {
                     System.err.println("Missing and/or malformatted port");
@@ -119,6 +122,17 @@ public class Project4 {
                     System.exit(1);
                 }
             }
+        } catch (ParseException ex) {
+            System.err.println("Invalid date(s) entered");
+            System.exit(1);
+        }
+
+        if (hostFlag || portFlag) {
+            if (hostName == null && portString != null)
+                usage(MISSING_ARGS);
+            else if (portString == null && hostName != null)
+                usage("Missing port");
+        }
 
 //        for (String arg : args) {
 //            if (hostName == null) {
@@ -138,48 +152,42 @@ public class Project4 {
 //            }
 //        }
 
-            if (hostName == null) {
-                usage(MISSING_ARGS);
+        int port;
+        try {
+            port = Integer.parseInt(portString);
+        } catch (NumberFormatException ex) {
+            usage("Port \"" + portString + "\" must be an integer");
+            return;
+        }
 
-            } else if (portString == null) {
-                usage("Missing port");
+        PhoneBillRestClient client = new PhoneBillRestClient(hostName, port);
+
+        HttpRequestHelper.Response response;
+        try {
+            if (key == null) {
+                // Print all key/value pairs
+                response = client.getAllKeysAndValues();
+
+            } else if (value == null) {
+                // Print all values of key
+                response = client.getValues(key);
+
+            } else {
+                // Post the key/value pair
+                response = client.addKeyValuePair(key, value);
             }
 
-            int port;
-            try {
-                port = Integer.parseInt(portString);
+            checkResponseCode(HttpURLConnection.HTTP_OK, response);
+        } catch (IOException ex) {
+            error("While contacting server: " + ex);
+            return;
+        }
 
-            } catch (NumberFormatException ex) {
-                usage("Port \"" + portString + "\" must be an integer");
-                return;
-            }
+        System.out.println(response.getContent());
 
-            PhoneBillRestClient client = new PhoneBillRestClient(hostName, port);
+        //************************** PARSING COMMAND LINE ARGUMENTS **************************//
 
-            HttpRequestHelper.Response response;
-            try {
-                if (key == null) {
-                    // Print all key/value pairs
-                    response = client.getAllKeysAndValues();
-
-                } else if (value == null) {
-                    // Print all values of key
-                    response = client.getValues(key);
-
-                } else {
-                    // Post the key/value pair
-                    response = client.addKeyValuePair(key, value);
-                }
-
-                checkResponseCode(HttpURLConnection.HTTP_OK, response);
-
-            } catch (IOException ex) {
-                error("While contacting server: " + ex);
-                return;
-            }
-
-            //************************** PARSING ARGUMENTS **************************//
-
+        try {
             if (args[index] != null && args[index].length() > 1) {
                 customer = project4.correctNameCasing(args[index]);
                 phoneBill = new PhoneBill(customer);
@@ -234,11 +242,6 @@ public class Project4 {
 
             if (printCall)
                 System.out.println(phoneBill.getMostRecentPhoneCall().toString());
-//            phoneBill.sortPhoneCalls();
-
-            System.out.println(response.getContent());
-            System.exit(0);
-
         } catch (ArrayIndexOutOfBoundsException ex) {
             System.err.println("Missing and/or malformatted command line arguments");
             System.exit(1);
@@ -249,6 +252,8 @@ public class Project4 {
             System.err.println("Invalid date(s) entered");
             System.exit(1);
         }
+
+        System.exit(0);
     }
 
     /**
@@ -339,7 +344,8 @@ public class Project4 {
      * @throws NumberFormatException when the argument cannot be parsed into an Integer
      * @throws ParseException        when the date is invalid
      */
-    public boolean isValidDateAndTime(String dateInput, String timeInput, String timeMark) throws NumberFormatException, ParseException {
+    public boolean isValidDateAndTime(String dateInput, String timeInput, String timeMark) throws
+            NumberFormatException, ParseException {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         dateFormat.setLenient(false);
         dateFormat.parse(dateInput);
@@ -416,8 +422,11 @@ public class Project4 {
                 "-print\t\t\t\tA description of some phone call. Entering this\n" +
                 "\t\t\t\t\toption at the command line will display the\n" +
                 "\t\t\t\t\tdescription of the most recently added phone call.\n" +
-                "-textFile <file>\tWhere to read/write the phone bill\n" +
-                "-pretty <file/->\tWhere to pretty print the phone bill\n\n" +
+                "-search\t\t\t\tThis option followed by a customer name, some\n" +
+                "\t\t\t\t\tstarting time and some ending time will return all\n" +
+                "\t\t\t\t\tof the calls started between those times.\n" +
+                "-host <hostname>\tThe host computer on which the server runs.\n" +
+                "-port <port>\t\tThe port on which the server is listening.\n" +
                 "To add a calling event, the following arguments must be provided\n" +
                 "in the order listed below, separated by a single white space.\n\n" +
                 "<customer>\t\t\tPerson whose phone bill we're modelling\n" +
