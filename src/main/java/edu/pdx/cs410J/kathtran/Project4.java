@@ -44,6 +44,7 @@ public class Project4 {
     private static boolean search = false;
 
     private static PhoneBill phoneBill;
+    private static PhoneCall phoneCall;
     private static String customer;
     private static String callerNumber;
     private static String calleeNumber;
@@ -85,110 +86,68 @@ public class Project4 {
             }
         }
 
-        try {
-            for (int i = 0; i < args.length; ++i) {
-                if (args[i].equals("-host") && args[i + 1] != null &&
-                        !args[i].equals("-port") && !args[i].equals("-search") && !args[i].equals("-print")) {
-                    hostName = args[i + 1];
-                    hostFlag = true;
-                    index += 2;
-                } else {
-                    System.err.println("Missing and/or malformatted hostname");
-                    System.exit(1);
-                }
-                if (args[i].equals("-port") && args[i + 1] != null &&
-                        !args[i].equals("-host") && !args[i].equals("-search") && !args[i].equals("-print")) {
-                    portString = args[i + 1];
-                    portFlag = true;
-                    index += 2;
-                } else {
-                    System.err.println("Missing and/or malformatted port");
-                    System.exit(1);
-                }
-                if (args[i].equals("-search") && args[i + 1] != null &&
-                        !args[i].equals("-host") && !args[i].equals("-port") && !args[i].equals("-print")) {
-                    customer = args[i + 1];
-                    if (args[i + 2] != null && args[i + 3] != null && args[i + 4] != null &&
-                            args[i + 5] != null && args[i + 6] != null && args[i + 7] != null
-                            && project4.isValidDateAndTime(args[i + 2], args[i + 3], args[i + 4])
-                            && project4.isValidDateAndTime(args[i + 5], args[i + 6], args[i + 7])) {
-                        searchAfter = args[i + 2] + " " + args[i + 3] + " " + args[i + 4];
-                        searchBefore = args[i + 5] + " " + args[i + 6] + " " + args[i + 7];
-                    }
-                    search = true;
-                    index += 7;
-                } else {
-                    System.err.println("Missing and/or malformatted search criteria");
-                    System.exit(1);
-                }
+
+        if (args[index] != null && args[index].equals("-host")) {
+            hostFlag = true;
+            index += 1;
+            if (args[index] != null && !args[index].equals("-port") &&
+                    !args[index].equals("-search") && !args[index].equals("-print")) {
+                hostName = args[index];
+                index += 1;
+            } else {
+                System.err.println("Missing and/or malformatted hostname");
+                System.exit(1);
             }
-        } catch (ParseException ex) {
-            System.err.println("Invalid date(s) entered");
-            System.exit(1);
+        }
+        if (args[index] != null && args[index].equals("-port")) {
+            portFlag = true;
+            index += 1;
+            if (args[index] != null && !args[index].equals("-host") &&
+                    !args[index].equals("-search") && !args[index].equals("-print")) {
+                portString = args[index];
+                index += 1;
+            } else {
+                System.err.println("Missing and/or malformatted port");
+                System.exit(1);
+            }
+        }
+        if (args[index] != null && args[index].equals("-search")) {
+            search = true;
+            index += 1;
+            if (args[index] != null && !args[index].equals("-host") &&
+                    !args[index].equals("-port") && !args[index].equals("-print")) {
+                customer = args[index];
+                try {
+                    if (args[index + 1] != null && args[index + 2] != null && args[index + 3] != null &&
+                            args[index + 4] != null && args[index + 5] != null && args[index + 6] != null
+                            && project4.isValidDateAndTime(args[index + 1], args[index + 2], args[index + 3])
+                            && project4.isValidDateAndTime(args[index + 4], args[index + 5], args[index + 6])) {
+                        searchAfter = args[index + 1] + " " + args[index + 2] + " " + args[index + 3];
+                        searchBefore = args[index + 4] + " " + args[index + 5] + " " + args[index + 6];
+                    }
+                } catch (ParseException ex) {
+                    System.err.println("Invalid date(s) entered");
+                    System.exit(1);
+                }
+                Project4.index += 6;
+            } else {
+                System.err.println("Missing and/or malformatted search criteria");
+                System.exit(1);
+            }
         }
 
-        if (hostFlag || portFlag) {
+
+        if (!printCall && (hostFlag || portFlag)) {
             if (hostName == null && portString != null)
-                usage(MISSING_ARGS);
+                usage("Missing host");
             else if (portString == null && hostName != null)
                 usage("Missing port");
         }
 
-//        for (String arg : args) {
-//            if (hostName == null) {
-//                hostName = arg;
-//
-//            } else if ( portString == null) {
-//                portString = arg;
-//
-//            } else if (key == null) {
-//                key = arg;
-//
-//            } else if (value == null) {
-//                value = arg;
-//
-//            } else {
-//                usage("Extraneous command line argument: " + arg);
-//            }
-//        }
-
-        int port;
-        try {
-            port = Integer.parseInt(portString);
-        } catch (NumberFormatException ex) {
-            usage("Port \"" + portString + "\" must be an integer");
-            return;
-        }
-
-        PhoneBillRestClient client = new PhoneBillRestClient(hostName, port);
-
-        HttpRequestHelper.Response response;
-        try {
-            if (key == null) {
-                // Print all key/value pairs
-                response = client.getAllKeysAndValues();
-
-            } else if (value == null) {
-                // Print all values of key
-                response = client.getValues(key);
-
-            } else {
-                // Post the key/value pair
-                response = client.addKeyValuePair(key, value);
-            }
-
-            checkResponseCode(HttpURLConnection.HTTP_OK, response);
-        } catch (IOException ex) {
-            error("While contacting server: " + ex);
-            return;
-        }
-
-        System.out.println(response.getContent());
-
-        //************************** PARSING COMMAND LINE ARGUMENTS **************************//
+        //************************** PARSING ARGUMENTS **************************//
 
         try {
-            if (args[index] != null && args[index].length() > 1) {
+            if (args[index] != null) {
                 customer = project4.correctNameCasing(args[index]);
                 phoneBill = new PhoneBill(customer);
                 index += 1;
@@ -197,7 +156,6 @@ public class Project4 {
                         "You may want to check the order and/or formatting of your arguments.");
                 System.exit(1);
             }
-
             if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
                 callerNumber = args[index];
                 index += 1;
@@ -237,7 +195,7 @@ public class Project4 {
                 System.exit(1);
             }
 
-            PhoneCall phoneCall = new PhoneCall(callerNumber, calleeNumber, startTime, endTime);
+            phoneCall = new PhoneCall(callerNumber, calleeNumber, startTime, endTime);
             phoneBill.addPhoneCall(phoneCall);
 
             if (printCall)
@@ -253,6 +211,42 @@ public class Project4 {
             System.exit(1);
         }
 
+        int port;
+        try {
+            port = Integer.parseInt(portString);
+        } catch (NumberFormatException ex) {
+            usage("Port \"" + portString + "\" must be an integer");
+            return;
+        }
+
+        PhoneBillRestClient client = new PhoneBillRestClient(hostName, port);
+
+        HttpRequestHelper.Response response;
+        key = phoneBill.getCustomer();
+        System.out.println("KEY: " + key + "\n\n");
+        value = phoneBill.prettyPrint();
+        System.out.println("VALUE: " + value + "\n\n");
+        try {
+            if (key == null) {
+                // Print all key/value pairs
+                response = client.getAllKeysAndValues();
+
+            } else if (value == null) {
+                // Print all values of key
+                response = client.getValues(key);
+
+            } else {
+                // Post the key/value pair
+                response = client.addKeyValuePair(key, value);
+            }
+
+            checkResponseCode(HttpURLConnection.HTTP_OK, response);
+        } catch (IOException ex) {
+            error("While contacting server: " + ex);
+            return;
+        }
+
+        System.out.println(response.getContent());
         System.exit(0);
     }
 

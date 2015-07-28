@@ -40,11 +40,11 @@ public class PhoneBillRestClient extends HttpRequestHelper
      */
     public Response getValues( String key ) throws IOException
     {
-        return get(this.url, "key", key);
+        return get(this.url, "customer", key);
     }
 
     public Response addKeyValuePair( String key, String value ) throws IOException
     {
-        return post( this.url, "key", key, "value", value );
+        return post( this.url, "customer", key, "phonecall", value );
     }
 }

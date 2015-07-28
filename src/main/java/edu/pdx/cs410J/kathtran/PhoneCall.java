@@ -221,21 +221,12 @@ class PhoneCall extends AbstractPhoneCall implements Comparable {
         boolean displayOneDate = false;
         if (getJustDate(this.startTime).equals(getJustDate(this.endTime)))
             displayOneDate = true;
-        String call = "\n" + getJustDate(this.startTime);
-        if (getJustDate(this.startTime).length() == 8)
-            call = call.concat("\t\t");
-        else
-            call = call.concat("\t\t\t");
-        call = call.concat(this.callerNumber + "\t\t" + this.calleeNumber + "\t\t" + getJustTime(this.startTime));
-        if (getJustTime(this.startTime).length() == 7)
-            call = call.concat("\t\t\t\t");
-        else
-            call = call.concat("\t\t\t");
+        String call = "\n  " + getJustDate(this.startTime);
+        call = call.concat("\t\t");
+        call = call.concat(this.callerNumber + "\t" + this.calleeNumber + "\t" + getJustTime(this.startTime));
+        call = call.concat("\t\t");
         call = call.concat(getJustTime(this.endTime));
-        if (getJustTime(this.endTime).length() == 7)
-            call = call.concat("\t\t\t\t");
-        else
-            call = call.concat("\t\t\t");
+        call = call.concat("\t\t");
         call = call.concat(getCallDuration() + "\n");
         if (!displayOneDate)
             call = call.concat(getJustDate(this.endTime) + "\n");

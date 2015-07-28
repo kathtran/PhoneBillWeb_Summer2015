@@ -23,6 +23,11 @@ public class PhoneBillServlet extends HttpServlet
      * specified in the "key" HTTP parameter to the HTTP response.  If the "key"
      * parameter is not specified, all of the key/value pairs are written to the
      * HTTP response.
+     *
+     * @param request data from the client
+     * @param response data returned to the client
+     * @throws ServletException
+     * @throws IOException
      */
     @Override
     protected void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException
@@ -31,10 +36,9 @@ public class PhoneBillServlet extends HttpServlet
 
         String key = getParameter( "customer", request );
         if (key != null) {
-            writeValue(key, response);
-
+            writeValue(key, response);      // If customer IS specified, display only their call records
         } else {
-            writeAllMappings(response);
+            writeAllMappings(response);     // If no customer is specified, display all customer/call records
         }
     }
 
@@ -42,6 +46,11 @@ public class PhoneBillServlet extends HttpServlet
      * Handles an HTTP POST request by storing the key/value pair specified by the
      * "key" and "value" request parameters.  It writes the key/value pair to the
      * HTTP response.
+     *
+     * @param request data from the client
+     * @param response data returned to the client
+     * @throws ServletException
+     * @throws IOException
      */
     @Override
     protected void doPost( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException
@@ -50,13 +59,13 @@ public class PhoneBillServlet extends HttpServlet
 
         String key = getParameter( "customer", request );
         if (key == null) {
-            missingRequiredParameter( response, "customer" );
+            missingRequiredParameter( response, "customer" );       // If customer isn't supplied
             return;
         }
 
-        String value = getParameter( "value", request );
+        String value = getParameter( "phonecall", request );
         if ( value == null) {
-            missingRequiredParameter( response, "value" );
+            missingRequiredParameter( response, "phonecall" );          // If no phonecall records
             return;
         }
 
