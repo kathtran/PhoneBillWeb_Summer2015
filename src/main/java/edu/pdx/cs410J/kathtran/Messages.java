@@ -11,9 +11,9 @@ public class Messages
         return String.format( "Phonebill contains %d customer/phonecall records", count );
     }
 
-    public static String formatKeyValuePair( String key, String value )
+    public static String formatCustomerPhoneBillPair(String key, PhoneBill value)
     {
-        return String.format("  %s -> %s", key, value);
+        return String.format("  %s's %s", key, value.prettyPrint());
     }
 
     public static String missingRequiredParameter( String parameterName )
@@ -21,8 +21,8 @@ public class Messages
         return String.format("The required parameter \"%s\" is missing", parameterName);
     }
 
-    public static String mappedKeyValue( String key, String value )
+    public static String mappedCustomerPhoneBill(String key, PhoneBill value)
     {
-        return String.format( "Mapped %s to %s", key, value );
+        return String.format( "Mapped %s to %s", key, value.getMostRecentPhoneCall().toString() );
     }
 }

@@ -67,6 +67,14 @@ class PhoneCall extends AbstractPhoneCall implements Comparable {
         this.endTime = endTime;
     }
 
+    public PhoneCall(String call) {
+        String[] split = call.split(" ");
+        callerNumber = split[0];
+        calleeNumber = split[1];
+        startTime = split[2] + " " + split[3] + " " + split[4];
+        endTime = split[5] + " " + split[6] + " " + split[7];
+    }
+
     /**
      * @return the phone number of the person who originated this phone call
      */
@@ -222,14 +230,14 @@ class PhoneCall extends AbstractPhoneCall implements Comparable {
         if (getJustDate(this.startTime).equals(getJustDate(this.endTime)))
             displayOneDate = true;
         String call = "\n  " + getJustDate(this.startTime);
-        call = call.concat("\t\t");
+        call = call.concat("\t");
         call = call.concat(this.callerNumber + "\t" + this.calleeNumber + "\t" + getJustTime(this.startTime));
         call = call.concat("\t\t");
         call = call.concat(getJustTime(this.endTime));
         call = call.concat("\t\t");
         call = call.concat(getCallDuration() + "\n");
         if (!displayOneDate)
-            call = call.concat(getJustDate(this.endTime) + "\n");
+            call = call.concat("  " + getJustDate(this.endTime) + "\n");
         return call;
     }
 

@@ -108,9 +108,15 @@ public class PhoneBill extends AbstractPhoneBill {
      * @return the entire phone bill in its new pretty format
      */
     public String prettyPrint() {
-        String entireBill = "\n  CS410J Phone Bill\n" + "  =================" +
+        String divider = "  ====================";
+        int count = 0;
+        while (count < customer.length()) {
+            divider = divider.concat("=");
+            count += 1;
+        }
+        String entireBill = "CS410J Phone Bill\n" + divider +
                 "\n  No. of Calls on Record: " + this.phoneCalls.size() +
-                "\n\n  Date(s)\t\tCaller\t\tCallee\t\tCall Began\tCall Ended\tDuration (mins)";
+                "\n\n  Date(s)\tCaller\t\tCallee\t\tCall Began\tCall Ended\tDuration (mins)";
         for (Object call : getPhoneCalls()) {
             PhoneCall phoneCall = (PhoneCall) call;
             entireBill = entireBill.concat(phoneCall.prettyPrint());

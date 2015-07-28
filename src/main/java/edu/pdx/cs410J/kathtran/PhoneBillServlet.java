@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class PhoneBillServlet extends HttpServlet
 {
-    private final Map<String, String> data = new HashMap<>();
+    private final Map<String, PhoneBill> data = new HashMap<>();
 
     /**
      * Handles an HTTP GET request from a client by writing the value of the key
@@ -34,9 +34,14 @@ public class PhoneBillServlet extends HttpServlet
     {
         response.setContentType( "text/plain" );
 
-        String key = getParameter( "customer", request );
-        if (key != null) {
-            writeValue(key, response);      // If customer IS specified, display only their call records
+        String customer = getParameter( "customer", request );
+        String caller = getParameter("caller", request);
+        String callee = getParameter("caller", request);
+        String start = getParameter("caller", request);
+        String end = getParameter( "caller", request );
+
+        if (customer != null && caller != null && callee != null && start != null && end != null) {
+            writeValue(customer, response);      // If customer IS specified, display only their call records
         } else {
             writeAllMappings(response);     // If no customer is specified, display all customer/call records
         }
@@ -57,22 +62,28 @@ public class PhoneBillServlet extends HttpServlet
     {
         response.setContentType( "text/plain" );
 
-        String key = getParameter( "customer", request );
-        if (key == null) {
+        String customer = getParameter( "customer", request );
+        if (customer == null) {
             missingRequiredParameter( response, "customer" );       // If customer isn't supplied
             return;
         }
 
-        String value = getParameter( "phonecall", request );
-        if ( value == null) {
-            missingRequiredParameter( response, "phonecall" );          // If no phonecall records
+        String phoneCall = getParameter("phonecall", request);
+        if ( phoneCall == null) {
+            missingRequiredParameter(response, "phonecall");          // If no phonecall records
             return;
         }
 
-        this.data.put(key, value);
+        PhoneCall phoneCallToAdd = new PhoneCall(phoneCall);
+        PhoneBill phoneBill = this.data.get(customer);
+
+        if (phoneBill == null)
+            phoneBill = new PhoneBill(customer);
+        phoneBill.addPhoneCall(phoneCallToAdd);
+        this.data.put(customer, phoneBill);
 
         PrintWriter pw = response.getWriter();
-        pw.println(Messages.mappedKeyValue(key, value));
+        pw.println(Messages.mappedCustomerPhoneBill(customer, phoneBill));
         pw.flush();
 
         response.setStatus( HttpServletResponse.SC_OK);
@@ -90,26 +101,45 @@ public class PhoneBillServlet extends HttpServlet
         pw.println( Messages.missingRequiredParameter(parameterName));
         pw.flush();
         
-        response.setStatus( HttpServletResponse.SC_PRECONDITION_FAILED );
+        response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
     }
 
     /**
-     * Writes the value of the given key to the HTTP response.
+     * Writes the value of the given customer to the HTTP response.
      *
      * The text of the message is formatted with {@link Messages#getMappingCount(int)}
-     * and {@link Messages#formatKeyValuePair(String, String)}
+     * and {@link Messages#formatCustomerPhoneBillPair(String, PhoneBill)}
      */
-    private void writeValue( String key, HttpServletResponse response ) throws IOException
+    private void writeValue( String customer, HttpServletResponse response ) throws IOException
     {
-        String value = this.data.get(key);
+        PhoneBill phonebill = this.data.get(customer);
 
         PrintWriter pw = response.getWriter();
-        pw.println(Messages.getMappingCount( value != null ? 1 : 0 ));
-        pw.println(Messages.formatKeyValuePair( key, value ));
+        pw.println(Messages.getMappingCount( phonebill != null ? 1 : 0 ));
+        pw.println(Messages.formatCustomerPhoneBillPair(customer, phonebill));
 
         pw.flush();
 
         response.setStatus( HttpServletResponse.SC_OK );
+    }
+
+    /**
+     * Prints out all phone calls that correspond to the specified customer.
+     *
+     * @param customer
+     * @param response
+     * @throws IOException
+     */
+    private void writeSpecifiedValue ( String customer, HttpServletResponse response ) throws IOException
+    {
+        PrintWriter pw = response.getWriter();
+        this.data.entrySet().stream().filter(entry -> entry.getKey().contentEquals(customer)).forEach(entry -> {
+            pw.println(entry.getKey());
+            for (Object phoneCall : entry.getValue().getPhoneCalls()) {
+                PhoneCall phoneCallToAdd = (PhoneCall) phoneCall;
+                pw.println(phoneCallToAdd.prettyPrint());
+            }
+        });
     }
 
     /**
@@ -121,10 +151,10 @@ public class PhoneBillServlet extends HttpServlet
     private void writeAllMappings( HttpServletResponse response ) throws IOException
     {
         PrintWriter pw = response.getWriter();
-        pw.println(Messages.getMappingCount( data.size() ));
+        pw.println(Messages.getMappingCount(data.size()));
 
-        for (Map.Entry<String, String> entry : this.data.entrySet()) {
-            pw.println(Messages.formatKeyValuePair(entry.getKey(), entry.getValue()));
+        for (Map.Entry<String, PhoneBill> entry : this.data.entrySet()) {
+            pw.println(Messages.formatCustomerPhoneBillPair(entry.getKey(), entry.getValue()));
         }
 
         pw.flush();
@@ -142,10 +172,12 @@ public class PhoneBillServlet extends HttpServlet
       String value = request.getParameter(name);
       if (value == null || "".equals(value)) {
         return null;
-
       } else {
         return value;
       }
     }
 
+    public Map<String, PhoneBill> getData() {
+        return data;
+    }
 }

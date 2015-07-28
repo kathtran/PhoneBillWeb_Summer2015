@@ -30,21 +30,21 @@ public class PhoneBillRestClient extends HttpRequestHelper
     /**
      * Returns all keys and values from the server
      */
-    public Response getAllKeysAndValues() throws IOException
+    public Response getAllCustomersAndPhoneBills() throws IOException
     {
         return get(this.url );
     }
 
     /**
-     * Returns all values for the given key
+     * Returns all values for the given customer
      */
-    public Response getValues( String key ) throws IOException
+    public Response getValues( String customer ) throws IOException
     {
-        return get(this.url, "customer", key);
+        return get(this.url, "customer", customer);
     }
 
-    public Response addKeyValuePair( String key, String value ) throws IOException
+    public Response addCustomerPhoneBillPair( String customer, PhoneBill phonebill ) throws IOException
     {
-        return post( this.url, "customer", key, "phonecall", value );
+        return post( this.url, "customer", customer, "phonecall", phonebill.prettyPrint() );
     }
 }

@@ -34,8 +34,8 @@ public class Project4 {
 
     private static String hostName;
     private static String portString;
-    private static String key;
-    private static String value;
+//    private static String key;
+//    private static String value;
     private static boolean hostFlag = false;
     private static boolean portFlag = false;
 
@@ -222,22 +222,20 @@ public class Project4 {
         PhoneBillRestClient client = new PhoneBillRestClient(hostName, port);
 
         HttpRequestHelper.Response response;
-        key = phoneBill.getCustomer();
-        System.out.println("KEY: " + key + "\n\n");
-        value = phoneBill.prettyPrint();
-        System.out.println("VALUE: " + value + "\n\n");
+//        key = phoneBill.getCustomer();
+//        value = phoneBill.prettyPrint();
         try {
-            if (key == null) {
+            if (customer == null) {
                 // Print all key/value pairs
-                response = client.getAllKeysAndValues();
+                response = client.getAllCustomersAndPhoneBills();
 
-            } else if (value == null) {
+            } else if (phoneBill == null) {
                 // Print all values of key
-                response = client.getValues(key);
+                response = client.getValues(customer);
 
             } else {
                 // Post the key/value pair
-                response = client.addKeyValuePair(key, value);
+                response = client.addCustomerPhoneBillPair(customer, phoneBill);
             }
 
             checkResponseCode(HttpURLConnection.HTTP_OK, response);
