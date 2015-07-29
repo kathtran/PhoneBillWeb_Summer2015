@@ -43,6 +43,7 @@ public class PhoneBillRestClient extends HttpRequestHelper {
     /**
      * Returns all phone calls between some given time specified by the user.
      *
+     * @param customer some name
      * @param startTime some time of day
      * @param endTime some time of day
      * @return phone calls that were started between the startTime and endTime times

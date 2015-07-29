@@ -14,10 +14,15 @@ public class Messages {
     }
 
     public static String missingRequiredParameter(String parameterName) {
-        return String.format("\nThe required parameter \"%s\" is missing\n", parameterName);
+        return String.format("The required parameter \"%s\" is missing", parameterName);
     }
 
     public static String mappedCustomerPhoneBill(String customer, PhoneBill phoneBill) {
-        return String.format("\nMapped %s to %s\n", customer, phoneBill.getMostRecentPhoneCall().toString());
+        return String.format("Mapped %s to %s", customer, phoneBill.getMostRecentPhoneCall().toString());
+    }
+
+    public static String searchPhoneBillForCalls(String customer) {
+        return String.format("Phone calls that exist for %s between the designated times" +
+                "\n  Date(s)\tCaller\t\tCallee\t\tCall Began\tCall Ended\tDuration (mins)", customer);
     }
 }

@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,8 +35,8 @@ public class PhoneBillServlet extends HttpServlet {
         response.setContentType("text/plain");
 
         String customer = getParameter("customer", request);
-        String searchAfter = getParameter("searchAfter", request);
-        String searchBefore = getParameter("searchBefore", request);
+        String searchAfter = getParameter("startTime", request);
+        String searchBefore = getParameter("endTime", request);
 
         if (customer != null && searchAfter == null && searchBefore == null)
             writePhoneBill(customer, response);
@@ -134,17 +135,22 @@ public class PhoneBillServlet extends HttpServlet {
      */
     private void writeTimeSpecifiedPhoneBill(String customer, String startTime, String endTime, HttpServletResponse response)
             throws IOException {
+        PhoneCall call;
+        int after;
+        int before;
         pw = response.getWriter();
-        this.data.entrySet().stream().filter(entry -> entry.getKey().equals(customer)).forEach(entry -> {
-            pw.println(entry.getKey());
-            for (Object phoneCall : entry.getValue().getPhoneCalls()) {
-                PhoneCall call = (PhoneCall) phoneCall;
-                String callStart = call.getStartTimeString();
-                if ((callStart.compareTo(startTime) == 0 || callStart.compareTo(startTime) == 1) &&
-                        (callStart.compareTo(endTime) == 0 || callStart.compareTo(endTime) == -1))
-                    pw.println(call.prettyPrint());
+        for (Map.Entry<String, PhoneBill> entry : this.data.entrySet()) {
+            if (entry.getKey().equals(customer)) {
+                pw.println(Messages.searchPhoneBillForCalls(entry.getKey()));
+                for (Object phoneCall : entry.getValue().getPhoneCalls()) {
+                    call = (PhoneCall) phoneCall;
+                    after = call.compareTime(call.getStartTimeString(), call.getShortDateFormat(startTime));
+                    before = call.compareTime(call.getStartTimeString(), call.getShortDateFormat(endTime));
+                    if ((after == 0 || after == 1) && (before == 0 || before == -1))
+                        pw.println(call.prettyPrint());
+                }
             }
-        });
+        }
         pw.flush();
         response.setStatus(HttpServletResponse.SC_OK);
     }

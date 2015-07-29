@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -114,20 +115,25 @@ public class Project4 {
             index += 1;
             if (args[index] != null && !args[index].equals("-host") &&
                     !args[index].equals("-port") && !args[index].equals("-print")) {
-                customer = args[index];
-                try {
-                    if (args[index + 1] != null && args[index + 2] != null && args[index + 3] != null &&
-                            args[index + 4] != null && args[index + 5] != null && args[index + 6] != null
-                            && project4.isValidDateAndTime(args[index + 1], args[index + 2], args[index + 3])
-                            && project4.isValidDateAndTime(args[index + 4], args[index + 5], args[index + 6])) {
-                        searchAfter = args[index + 1] + " " + args[index + 2] + " " + args[index + 3];
-                        searchBefore = args[index + 4] + " " + args[index + 5] + " " + args[index + 6];
+                customer = project4.correctNameCasing(args[index]);
+                index += 1;
+                if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
+                        args[index + 3] != null && args[index + 4] != null && args[index + 5] != null) {
+                    try {
+                        if (project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase()) &&
+                                project4.isValidDateAndTime(args[index + 3], args[index + 4], args[index + 5].toUpperCase())) {
+                            searchAfter = args[index] + " " + args[index + 1] + " " + args[index + 2].toUpperCase();
+                            searchBefore = args[index + 3] + " " + args[index + 4] + " " + args[index + 5].toUpperCase();
+                        }
+                    } catch (ParseException ex) {
+                        System.err.println("Invalid date(s) entered");
+                        System.exit(1);
                     }
-                } catch (ParseException ex) {
-                    System.err.println("Invalid date(s) entered");
+                } else {
+                    System.err.println("Missing and/or malformatted search criteria");
                     System.exit(1);
                 }
-                Project4.index += 6;
+                index += 6;
             } else {
                 System.err.println("Missing and/or malformatted search criteria");
                 System.exit(1);
@@ -135,7 +141,9 @@ public class Project4 {
         }
 
         // Ensure that both a host name and a valid port have been given if the flags are set
-        if (hostFlag || portFlag) {
+        if (hostFlag || portFlag)
+
+        {
             if (hostName == null && portString != null)
                 usage("Missing host");
             else if (portString == null && hostName != null)
@@ -152,7 +160,9 @@ public class Project4 {
 
         //************************** PARSING ARGUMENTS FOR PHONE CALL **************************//
 
-        if (!search) {
+        if (!search)
+
+        {
             try {
                 if (args[index] != null) {
                     customer = project4.correctNameCasing(args[index]);
@@ -225,7 +235,7 @@ public class Project4 {
             try {
                 if (customer == null)
                     response = client.getAllCustomersAndPhoneBills();
-                else if (phoneBill == null)
+                else if (phoneBill == null && searchAfter == null && searchBefore == null)
                     response = client.getPhoneBills(customer);
                 else if (search && searchAfter != null && searchBefore != null)
                     response = client.getSearchedPhoneBills(customer, searchAfter, searchBefore);
@@ -235,9 +245,14 @@ public class Project4 {
             } catch (IOException ex) {
                 error("While contacting server: " + ex);
                 return;
+            } catch (NullPointerException ex) {
+                System.err.println("Something unexpected has happened. " +
+                        "Please re-examine your arguments and try again.");
+                return;
             }
             System.out.println(response.getContent());
         }
+
         System.exit(0);
     }
 

@@ -127,7 +127,7 @@ class PhoneCall extends AbstractPhoneCall implements Comparable {
      */
     private String dateFormatter(String dateToFormat) {
         Date date = null;
-        DateFormat parseDate = new SimpleDateFormat("MM/dd/yyyy hh:mm");
+        DateFormat parseDate = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
         try {
             date = parseDate.parse(dateToFormat);
         } catch (ParseException ex) {
@@ -181,14 +181,37 @@ class PhoneCall extends AbstractPhoneCall implements Comparable {
     }
 
     /**
+     * Compares the time between two <code>String</code> objects and returns
+     * some value based on their relation.
+     *
+     * @param thisTime some time String
+     * @param thatTime some time String
+     * @return a negative integer, zero, or a positive integer as this thatTime
+     * is less than, equal to, or greater than the specified thatTime.
+     * @throws NullPointerException if the specified thatTime is null
+     */
+    public int compareTime(String thisTime, String thatTime) throws NullPointerException {
+        Date thisDate = getDateObject(thisTime);
+        Date thatDate = getDateObject(thatTime);
+
+        if (thisDate.equals(thatDate))
+            return 0;
+        if (thisDate.before(thatDate))
+            return -1;
+        if (thisDate.after(thatDate))
+            return 1;
+        return 2;
+    }
+
+    /**
      * Creates a date object of some given date and time.
      *
      * @param dateToGet some date and time
      * @return a Date object of the provided date and time
      */
-    private Date getDateObject(String dateToGet) {
+    public Date getDateObject(String dateToGet) {
         Date date = null;
-        DateFormat parseDate = new SimpleDateFormat("MM/dd/yyyy hh:mm");
+        DateFormat parseDate = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
         try {
             date = parseDate.parse(dateToGet);
         } catch (ParseException ex) {
@@ -196,6 +219,24 @@ class PhoneCall extends AbstractPhoneCall implements Comparable {
             System.exit(1);
         }
         return date;
+    }
+
+    /**
+     * Format some date into the SHORT format and return it as a <code>String</code>.
+     *
+     * @param dateToFormat some date
+     * @return date in SHORT format
+     */
+    public String getShortDateFormat(String dateToFormat) {
+        Date date = null;
+        DateFormat parseDate = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+        try {
+            date = parseDate.parse(dateToFormat);
+        } catch (ParseException ex) {
+            System.err.println("Something went wrong whilst attempting to parse the date");
+            System.exit(1);
+        }
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date);
     }
 
     /**
@@ -281,9 +322,9 @@ class PhoneCall extends AbstractPhoneCall implements Comparable {
     private String getJustTime(String dateToParse) {
         String[] split = dateToParse.split(" ");
         Date date = null;
-        DateFormat parseDate = new SimpleDateFormat("hh:mm");
+        DateFormat parseDate = new SimpleDateFormat("hh:mm a");
         try {
-            date = parseDate.parse(split[1]);
+            date = parseDate.parse(split[1] + " " + split[2]);
         } catch (ParseException ex) {
             System.err.println("Something went wrong whilst attempting to parse the time");
             System.exit(1);
