@@ -223,18 +223,6 @@ public class Project4 {
             PhoneBillRestClient client = new PhoneBillRestClient(hostName, port);
             HttpRequestHelper.Response response;
             try {
-//            if (customer == null) {
-//                // Print all key/value pairs
-//                response = client.getAllCustomersAndPhoneBills();
-//
-//            } else if (phoneBill == null) {
-//                // Print all values of key
-//                response = client.getPhoneBills(customer);
-//
-//            } else {
-//                // Post the key/value pair
-//                response = client.addCustomerPhoneCallPair(customer, phoneBill);
-//            }
                 if (customer == null)
                     response = client.getAllCustomersAndPhoneBills();
                 else if (phoneBill == null)
