@@ -13,12 +13,14 @@ import java.util.Collections;
  * the construction of the phone bill skeleton. The customer's
  * name as well as their collection of phone call records are
  * maintained here.
- *
+ * <p>
  * v3.0 UPDATE: A pretty print method has been implemented. It
  * nicely formats the phone bill and its corresponding phone calls.
+ * <p>
+ * v4.0 UPDATE: Minor edits to the formatting of the pretty print method.
  *
  * @author Kathleen Tran
- * @version 3.0
+ * @version 4.0
  */
 public class PhoneBill extends AbstractPhoneBill {
 
@@ -108,6 +110,7 @@ public class PhoneBill extends AbstractPhoneBill {
      * @return the entire phone bill in its new pretty format
      */
     public String prettyPrint() {
+        sortPhoneCalls();
         String divider = "  ====================";
         int count = 0;
         while (count < customer.length()) {

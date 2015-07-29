@@ -34,10 +34,9 @@ public class Project4 {
 
     private static String hostName;
     private static String portString;
-//    private static String key;
-//    private static String value;
     private static boolean hostFlag = false;
     private static boolean portFlag = false;
+    private static int port;
 
     private static String searchAfter;
     private static String searchBefore;
@@ -85,7 +84,6 @@ public class Project4 {
                 System.exit(1);
             }
         }
-
 
         if (args[index] != null && args[index].equals("-host")) {
             hostFlag = true;
@@ -136,115 +134,122 @@ public class Project4 {
             }
         }
 
-
-        if (!printCall && (hostFlag || portFlag)) {
+        // Ensure that both a host name and a valid port have been given if the flags are set
+        if (hostFlag || portFlag) {
             if (hostName == null && portString != null)
                 usage("Missing host");
             else if (portString == null && hostName != null)
                 usage("Missing port");
+            else if (portString != null) {
+                try {
+                    port = Integer.parseInt(portString);
+                } catch (NumberFormatException ex) {
+                    usage("Port \"" + portString + "\" must be an integer");
+                    return;
+                }
+            }
         }
 
-        //************************** PARSING ARGUMENTS **************************//
+        //************************** PARSING ARGUMENTS FOR PHONE CALL **************************//
 
-        try {
-            if (args[index] != null) {
-                customer = project4.correctNameCasing(args[index]);
-                phoneBill = new PhoneBill(customer);
-                index += 1;
-            } else {
-                System.err.println("Cannot identify the customer name. " +
-                        "You may want to check the order and/or formatting of your arguments.");
-                System.exit(1);
-            }
-            if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
-                callerNumber = args[index];
-                index += 1;
-            } else {
-                System.err.println("Cannot identify the customer name and/or caller number. " +
-                        "You may want to check the order and/or formatting of your arguments.");
-                System.exit(1);
-            }
-            if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
-                calleeNumber = args[index];
-                index += 1;
-            } else {
-                System.err.println("Cannot identify the callee number. " +
-                        "You may want to check the order and/or formatting of your arguments.");
-                System.exit(1);
-            }
-            if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
-                    project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
-                startTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
-                index += 3;
-            } else {
-                System.err.println("Cannot identify the start time. " +
-                        "You may want to check the order and/or formatting of your arguments.");
-                System.exit(1);
-            }
-            if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
-                    project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
-                endTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
-                index += 3;
-            } else {
-                System.err.println("Cannot identify the end time. " +
-                        "You may want to check the order and/or formatting of your arguments.");
-                System.exit(1);
-            }
-            if (index < args.length) {
-                System.err.print("Extraneous and/or malformatted command line arguments");
-                System.exit(1);
-            }
+        if (!search) {
+            try {
+                if (args[index] != null) {
+                    customer = project4.correctNameCasing(args[index]);
+                    phoneBill = new PhoneBill(customer);
+                    index += 1;
+                } else {
+                    System.err.println("Cannot identify the customer name. " +
+                            "You may want to check the order and/or formatting of your arguments.");
+                    System.exit(1);
+                }
+                if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
+                    callerNumber = args[index];
+                    index += 1;
+                } else {
+                    System.err.println("Cannot identify the customer name and/or caller number. " +
+                            "You may want to check the order and/or formatting of your arguments.");
+                    System.exit(1);
+                }
+                if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
+                    calleeNumber = args[index];
+                    index += 1;
+                } else {
+                    System.err.println("Cannot identify the callee number. " +
+                            "You may want to check the order and/or formatting of your arguments.");
+                    System.exit(1);
+                }
+                if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
+                        project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
+                    startTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                    index += 3;
+                } else {
+                    System.err.println("Cannot identify the start time. " +
+                            "You may want to check the order and/or formatting of your arguments.");
+                    System.exit(1);
+                }
+                if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
+                        project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
+                    endTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                    index += 3;
+                } else {
+                    System.err.println("Cannot identify the end time. " +
+                            "You may want to check the order and/or formatting of your arguments.");
+                    System.exit(1);
+                }
+                if (index < args.length) {
+                    System.err.print("Extraneous and/or malformatted command line arguments");
+                    System.exit(1);
+                }
 
-            phoneCall = new PhoneCall(callerNumber, calleeNumber, startTime, endTime);
-            phoneBill.addPhoneCall(phoneCall);
+                phoneCall = new PhoneCall(callerNumber, calleeNumber, startTime, endTime);
+                phoneBill.addPhoneCall(phoneCall);
 
-            if (printCall)
-                System.out.println(phoneBill.getMostRecentPhoneCall().toString());
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            System.err.println("Missing and/or malformatted command line arguments");
-            System.exit(1);
-        } catch (NumberFormatException ex) {
-            System.err.println("Invalid and/or malformatted date(s) entered");
-            System.exit(1);
-        } catch (ParseException ex) {
-            System.err.println("Invalid date(s) entered");
-            System.exit(1);
+                if (printCall)
+                    System.out.println(phoneBill.getMostRecentPhoneCall().toString());
+            } catch (ArrayIndexOutOfBoundsException ex) {
+                System.err.println("Missing and/or malformatted command line arguments");
+                System.exit(1);
+            } catch (NumberFormatException ex) {
+                System.err.println("Invalid and/or malformatted date(s) entered");
+                System.exit(1);
+            } catch (ParseException ex) {
+                System.err.println("Invalid date(s) entered");
+                System.exit(1);
+            }
         }
 
-        int port;
-        try {
-            port = Integer.parseInt(portString);
-        } catch (NumberFormatException ex) {
-            usage("Port \"" + portString + "\" must be an integer");
-            return;
-        }
-
-        PhoneBillRestClient client = new PhoneBillRestClient(hostName, port);
-
-        HttpRequestHelper.Response response;
-//        key = phoneBill.getCustomer();
-//        value = phoneBill.prettyPrint();
-        try {
-            if (customer == null) {
-                // Print all key/value pairs
-                response = client.getAllCustomersAndPhoneBills();
-
-            } else if (phoneBill == null) {
-                // Print all values of key
-                response = client.getValues(customer);
-
-            } else {
-                // Post the key/value pair
-                response = client.addCustomerPhoneBillPair(customer, phoneBill);
+        if (hostFlag && portFlag) {
+            PhoneBillRestClient client = new PhoneBillRestClient(hostName, port);
+            HttpRequestHelper.Response response;
+            try {
+//            if (customer == null) {
+//                // Print all key/value pairs
+//                response = client.getAllCustomersAndPhoneBills();
+//
+//            } else if (phoneBill == null) {
+//                // Print all values of key
+//                response = client.getPhoneBills(customer);
+//
+//            } else {
+//                // Post the key/value pair
+//                response = client.addCustomerPhoneCallPair(customer, phoneBill);
+//            }
+                if (customer == null)
+                    response = client.getAllCustomersAndPhoneBills();
+                else if (phoneBill == null)
+                    response = client.getPhoneBills(customer);
+                else if (search && searchAfter != null && searchBefore != null)
+                    response = client.getSearchedPhoneBills(customer, searchAfter, searchBefore);
+                else
+                    response = client.addCustomerPhoneCallPair(customer, phoneCall);
+                checkResponseCode(HttpURLConnection.HTTP_OK, response);
+            } catch (IOException ex) {
+                error("While contacting server: " + ex);
+                return;
             }
-
-            checkResponseCode(HttpURLConnection.HTTP_OK, response);
-        } catch (IOException ex) {
-            error("While contacting server: " + ex);
-            return;
+            System.out.println(response.getContent());
         }
-
-        System.out.println(response.getContent());
         System.exit(0);
     }
 
@@ -436,7 +441,7 @@ public class Project4 {
                 "\n" +
                 "----------------------------------------------------------\n" +
                 "CS410J PROJECT 4: A REST-FULL PHONE BILL WEB SERVICE\n\n" +
-                "AUTHOR: KATHLEEN TRAN\nLAST MODIFIED: 7/27/2015\n\n");
+                "AUTHOR: KATHLEEN TRAN\nLAST MODIFIED: 7/28/2015\n\n");
         System.exit(1);
     }
 }
