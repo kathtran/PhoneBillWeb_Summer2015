@@ -112,32 +112,7 @@ public class Project4 {
                     }
                 } else if (args[i] != null && args[i].equals("-search")) {
                     search = true;
-                    i += 1;
-                    if (args[i] != null && !args[i].equals("-host") &&
-                            !args[i].equals("-port") && !args[i].equals("-print")) {
-                        customer = project4.correctNameCasing(args[i]);
-                        i += 1;
-                        if (args[i] != null && args[i + 1] != null && args[i + 2] != null &&
-                                args[i + 3] != null && args[i + 4] != null && args[i + 5] != null) {
-                            try {
-                                if (project4.isValidDateAndTime(args[i], args[i + 1], args[i + 2].toUpperCase()) &&
-                                        project4.isValidDateAndTime(args[i + 3], args[i + 4], args[i + 5].toUpperCase())) {
-                                    searchAfter = args[i] + " " + args[i + 1] + " " + args[i + 2].toUpperCase();
-                                    searchBefore = args[i + 3] + " " + args[i + 4] + " " + args[i + 5].toUpperCase();
-                                }
-                            } catch (ParseException ex) {
-                                System.err.println("Invalid date(s) entered");
-                                System.exit(1);
-                            }
-                        } else {
-                            System.err.println("Missing and/or malformatted search criteria");
-                            System.exit(1);
-                        }
-                        index += 7;
-                    } else {
-                        System.err.println("Missing and/or malformatted search criteria");
-                        System.exit(1);
-                    }
+                    index += 1;
                 }
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
@@ -163,8 +138,6 @@ public class Project4 {
 
         //************************** PARSING ARGUMENTS FOR PHONE CALL **************************//
 
-        if (!search)
-
         {
             try {
                 if (args[index] != null) {
@@ -180,25 +153,28 @@ public class Project4 {
                             "You may want to check the order and/or formatting of your arguments.");
                     System.exit(1);
                 }
-                if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
-                    callerNumber = args[index];
-                    index += 1;
-                } else {
-                    System.err.println("Cannot identify the caller number. " +
-                            "You may want to check the order and/or formatting of your arguments.");
-                    System.exit(1);
-                }
-                if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
-                    calleeNumber = args[index];
-                    index += 1;
-                } else {
-                    System.err.println("Cannot identify the callee number. " +
-                            "You may want to check the order and/or formatting of your arguments.");
-                    System.exit(1);
+                if (!search) {
+                    if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
+                        callerNumber = args[index];
+                        index += 1;
+                    } else {
+                        System.err.println("Cannot identify the caller and/or callee number. " +
+                                "You may want to check the order and/or formatting of your arguments.");
+                        System.exit(1);
+                    }
+                    if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
+                        calleeNumber = args[index];
+                        index += 1;
+                    } else {
+                        System.err.println("Cannot identify the caller and/or callee number. " +
+                                "You may want to check the order and/or formatting of your arguments.");
+                        System.exit(1);
+                    }
                 }
                 if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
                         project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
                     startTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                    searchAfter = startTime;
                     index += 3;
                 } else {
                     System.err.println("Cannot identify the start time. " +
@@ -208,6 +184,7 @@ public class Project4 {
                 if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
                         project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
                     endTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                    searchBefore = endTime;
                     index += 3;
                 } else {
                     System.err.println("Cannot identify the end time. " +

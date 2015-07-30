@@ -138,6 +138,7 @@ public class PhoneBillServlet extends HttpServlet {
         PhoneCall call;
         int after;
         int before;
+        boolean atLeastOneExists = false;
         pw = response.getWriter();
         for (Map.Entry<String, PhoneBill> entry : this.data.entrySet()) {
             if (entry.getKey().equals(customer)) {
@@ -146,11 +147,15 @@ public class PhoneBillServlet extends HttpServlet {
                     call = (PhoneCall) phoneCall;
                     after = call.compareTime(call.getStartTimeString(), call.getShortDateFormat(startTime));
                     before = call.compareTime(call.getStartTimeString(), call.getShortDateFormat(endTime));
-                    if ((after == 0 || after == 1) && (before == 0 || before == -1))
+                    if ((after == 0 || after == 1) && (before == 0 || before == -1)) {
                         pw.println(call.prettyPrint());
+                        atLeastOneExists = true;
+                    }
                 }
             }
         }
+        if (!atLeastOneExists)
+            Messages.noCallsFound(customer);
         pw.flush();
         response.setStatus(HttpServletResponse.SC_OK);
     }

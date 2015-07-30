@@ -25,4 +25,8 @@ public class Messages {
         return String.format("Phone calls that exist for %s between the designated times" +
                 "\n  Date(s)\tCaller\t\tCallee\t\tCall Began\tCall Ended\tDuration (mins)", customer);
     }
+
+    public static String noCallsFound(String customer) {
+        return String.format("No call records were found within %s's phone bill between the designated times", customer);
+    }
 }
