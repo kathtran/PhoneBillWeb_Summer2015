@@ -86,64 +86,42 @@ public class Project4 {
             }
         }
 
-        if (args[index] != null && args[index].equals("-host")) {
-            hostFlag = true;
-            index += 1;
-            if (args[index] != null && !args[index].equals("-port") &&
-                    !args[index].equals("-search") && !args[index].equals("-print")) {
-                hostName = args[index];
-                index += 1;
-            } else {
-                System.err.println("Missing and/or malformatted hostname");
-                System.exit(1);
-            }
-        }
-        if (args[index] != null && args[index].equals("-port")) {
-            portFlag = true;
-            index += 1;
-            if (args[index] != null && !args[index].equals("-host") &&
-                    !args[index].equals("-search") && !args[index].equals("-print")) {
-                portString = args[index];
-                index += 1;
-            } else {
-                System.err.println("Missing and/or malformatted port");
-                System.exit(1);
-            }
-        }
-        if (args[index] != null && args[index].equals("-search")) {
-            search = true;
-            index += 1;
-            if (args[index] != null && !args[index].equals("-host") &&
-                    !args[index].equals("-port") && !args[index].equals("-print")) {
-                customer = project4.correctNameCasing(args[index]);
-                index += 1;
-                if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
-                        args[index + 3] != null && args[index + 4] != null && args[index + 5] != null) {
-                    try {
-                        if (project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase()) &&
-                                project4.isValidDateAndTime(args[index + 3], args[index + 4], args[index + 5].toUpperCase())) {
-                            searchAfter = args[index] + " " + args[index + 1] + " " + args[index + 2].toUpperCase();
-                            searchBefore = args[index + 3] + " " + args[index + 4] + " " + args[index + 5].toUpperCase();
-                        }
-                    } catch (ParseException ex) {
-                        System.err.println("Invalid date(s) entered");
+        try {
+            for (int i = 0; i < args.length; ++i) {
+                if (args[i] != null && args[i].equals("-host")) {
+                    hostFlag = true;
+                    i += 1;
+                    if (args[i] != null && !args[i].equals("-port") &&
+                            !args[i].equals("-search") && !args[index].equals("-print")) {
+                        hostName = args[i];
+                        index += 2;
+                    } else {
+                        System.err.println("Missing and/or malformatted hostname");
                         System.exit(1);
                     }
-                } else {
-                    System.err.println("Missing and/or malformatted search criteria");
-                    System.exit(1);
+                } else if (args[i] != null && args[i].equals("-port")) {
+                    portFlag = true;
+                    i += 1;
+                    if (args[i] != null && !args[i].equals("-host") &&
+                            !args[i].equals("-search") && !args[i].equals("-print")) {
+                        portString = args[i];
+                        index += 2;
+                    } else {
+                        System.err.println("Missing and/or malformatted port");
+                        System.exit(1);
+                    }
+                } else if (args[i] != null && args[i].equals("-search")) {
+                    search = true;
+                    index += 1;
                 }
-                index += 6;
-            } else {
-                System.err.println("Missing and/or malformatted search criteria");
-                System.exit(1);
             }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            System.err.println(MISSING_ARGS);
+            System.exit(1);
         }
 
         // Ensure that both a host name and a valid port have been given if the flags are set
-        if (hostFlag || portFlag)
-
-        {
+        if (hostFlag && portFlag) {
             if (hostName == null && portString != null)
                 usage("Missing host");
             else if (portString == null && hostName != null)
@@ -160,11 +138,13 @@ public class Project4 {
 
         //************************** PARSING ARGUMENTS FOR PHONE CALL **************************//
 
-        if (!search)
-
         {
             try {
                 if (args[index] != null) {
+                    if (project4.isValidPhoneNumber(args[index])) {
+                        System.err.println("Missing customer name");
+                        System.exit(1);
+                    }
                     customer = project4.correctNameCasing(args[index]);
                     phoneBill = new PhoneBill(customer);
                     index += 1;
@@ -173,25 +153,28 @@ public class Project4 {
                             "You may want to check the order and/or formatting of your arguments.");
                     System.exit(1);
                 }
-                if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
-                    callerNumber = args[index];
-                    index += 1;
-                } else {
-                    System.err.println("Cannot identify the customer name and/or caller number. " +
-                            "You may want to check the order and/or formatting of your arguments.");
-                    System.exit(1);
-                }
-                if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
-                    calleeNumber = args[index];
-                    index += 1;
-                } else {
-                    System.err.println("Cannot identify the callee number. " +
-                            "You may want to check the order and/or formatting of your arguments.");
-                    System.exit(1);
+                if (!search) {
+                    if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
+                        callerNumber = args[index];
+                        index += 1;
+                    } else {
+                        System.err.println("Cannot identify the caller and/or callee number. " +
+                                "You may want to check the order and/or formatting of your arguments.");
+                        System.exit(1);
+                    }
+                    if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
+                        calleeNumber = args[index];
+                        index += 1;
+                    } else {
+                        System.err.println("Cannot identify the caller and/or callee number. " +
+                                "You may want to check the order and/or formatting of your arguments.");
+                        System.exit(1);
+                    }
                 }
                 if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
                         project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
                     startTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                    searchAfter = startTime;
                     index += 3;
                 } else {
                     System.err.println("Cannot identify the start time. " +
@@ -201,6 +184,7 @@ public class Project4 {
                 if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
                         project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
                     endTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                    searchBefore = endTime;
                     index += 3;
                 } else {
                     System.err.println("Cannot identify the end time. " +
