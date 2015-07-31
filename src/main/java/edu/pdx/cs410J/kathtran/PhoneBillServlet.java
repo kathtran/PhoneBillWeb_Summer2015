@@ -158,7 +158,7 @@ public class PhoneBillServlet extends HttpServlet {
             }
         }
         if (!atLeastOneExists)
-            Messages.noCallsFound(customer);
+            pw.println(Messages.noCallsFound(customer));
         pw.flush();
         response.setStatus(HttpServletResponse.SC_OK);
     }
