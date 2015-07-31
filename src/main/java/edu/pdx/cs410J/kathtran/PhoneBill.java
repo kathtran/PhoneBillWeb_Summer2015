@@ -126,8 +126,4 @@ public class PhoneBill extends AbstractPhoneBill {
         }
         return entireBill;
     }
-
-    public void setCustomer(String customer) {
-        this.customer = customer;
-    }
 }

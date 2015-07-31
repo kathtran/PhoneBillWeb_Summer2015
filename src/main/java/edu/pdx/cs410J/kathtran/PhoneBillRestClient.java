@@ -5,16 +5,17 @@ import edu.pdx.cs410J.web.HttpRequestHelper;
 import java.io.IOException;
 
 /**
- * A helper class for accessing the rest client.  Note that this class provides
- * an example of how to make gets and posts to a URL.  You'll need to change it
- * to do something other than just send key/value pairs.
+ * A helper class for accessing the rest client. The methods here
+ * support the formatting of the URLs used to reach various data
+ * that has been queried by the user.
+ *
+ * @author Kathleen Tran
+ * @version 4.0
  */
 public class PhoneBillRestClient extends HttpRequestHelper {
     private static final String WEB_APP = "phonebill";
     private static final String SERVLET = "calls";
-
     private final String url;
-
 
     /**
      * Creates a client to the Phone Bill REST service running on the given host and port
@@ -27,14 +28,19 @@ public class PhoneBillRestClient extends HttpRequestHelper {
     }
 
     /**
-     * Returns all customers and phone bills from the server
+     * Returns all customers and phone bills from the server.
+     *
+     * @throws IOException some IO error
      */
     public Response getAllCustomersAndPhoneBills() throws IOException {
         return get(this.url);
     }
 
     /**
-     * Returns all phone calls for the given customer
+     * Returns all phone calls for the given customer.
+     *
+     * @param customer some name
+     * @throws IOException some IO error
      */
     public Response getPhoneBills(String customer) throws IOException {
         return get(this.url, "customer", customer);
@@ -43,11 +49,11 @@ public class PhoneBillRestClient extends HttpRequestHelper {
     /**
      * Returns all phone calls between some given time specified by the user.
      *
-     * @param customer some name
+     * @param customer  some name
      * @param startTime some time of day
-     * @param endTime some time of day
+     * @param endTime   some time of day
      * @return phone calls that were started between the startTime and endTime times
-     * @throws IOException
+     * @throws IOException some IO error
      */
     public Response getSearchedPhoneBills(String customer, String startTime, String endTime) throws IOException {
         return get(this.url, "customer", customer, "startTime", startTime, "endTime", endTime);
@@ -56,10 +62,10 @@ public class PhoneBillRestClient extends HttpRequestHelper {
     /**
      * Adds a phone call record to the phone bill of the specified customer.
      *
-     * @param customer some name
+     * @param customer  some name
      * @param phoneCall contains the record of some phone call
      * @return phone calls within the phone bill of the specified name
-     * @throws IOException
+     * @throws IOException some IO error
      */
     public Response addCustomerPhoneCallPair(String customer, PhoneCall phoneCall) throws IOException {
         return post(this.url, "customer", customer, "phoneCall", phoneCall.toString());

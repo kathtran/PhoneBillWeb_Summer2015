@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,17 +68,10 @@ public class Project4 {
         for (String arg : args) {
             if (arg.equals("-README"))
                 project4.readme();
-        }
-
-        for (String arg : args) {
-            if (arg.equals("-print")) {
+            else if (arg.equals("-print")) {
                 printCall = true;
                 index += 1;
-            }
-        }
-
-        for (String arg : args) {
-            if (arg.startsWith("-") && !arg.equals("-print") &&
+            } else if (arg.startsWith("-") && !arg.equals("-print") &&
                     !arg.equals("-host") && !arg.equals("-port") && !arg.equals("-search")) {
                 System.err.println("Unknown command line option");
                 System.exit(1);
@@ -138,79 +130,77 @@ public class Project4 {
 
         //************************** PARSING ARGUMENTS FOR PHONE CALL **************************//
 
-        {
-            try {
-                if (args[index] != null) {
-                    if (project4.isValidPhoneNumber(args[index])) {
-                        System.err.println("Missing customer name");
-                        System.exit(1);
-                    }
-                    customer = project4.correctNameCasing(args[index]);
-                    phoneBill = new PhoneBill(customer);
-                    index += 1;
-                } else {
-                    System.err.println("Cannot identify the customer name. " +
-                            "You may want to check the order and/or formatting of your arguments.");
+        try {
+            if (args[index] != null) {
+                if (project4.isValidPhoneNumber(args[index])) {
+                    System.err.println("Missing customer name");
                     System.exit(1);
                 }
-                if (!search) {
-                    if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
-                        callerNumber = args[index];
-                        index += 1;
-                    } else {
-                        System.err.println("Cannot identify the caller and/or callee number. " +
-                                "You may want to check the order and/or formatting of your arguments.");
-                        System.exit(1);
-                    }
-                    if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
-                        calleeNumber = args[index];
-                        index += 1;
-                    } else {
-                        System.err.println("Cannot identify the caller and/or callee number. " +
-                                "You may want to check the order and/or formatting of your arguments.");
-                        System.exit(1);
-                    }
-                }
-                if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
-                        project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
-                    startTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
-                    searchAfter = startTime;
-                    index += 3;
-                } else {
-                    System.err.println("Cannot identify the start time. " +
-                            "You may want to check the order and/or formatting of your arguments.");
-                    System.exit(1);
-                }
-                if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
-                        project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
-                    endTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
-                    searchBefore = endTime;
-                    index += 3;
-                } else {
-                    System.err.println("Cannot identify the end time. " +
-                            "You may want to check the order and/or formatting of your arguments.");
-                    System.exit(1);
-                }
-                if (index < args.length) {
-                    System.err.print("Extraneous and/or malformatted command line arguments");
-                    System.exit(1);
-                }
-
-                phoneCall = new PhoneCall(callerNumber, calleeNumber, startTime, endTime);
-                phoneBill.addPhoneCall(phoneCall);
-
-                if (printCall)
-                    System.out.println(phoneBill.getMostRecentPhoneCall().toString());
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                System.err.println("Missing and/or malformatted command line arguments");
-                System.exit(1);
-            } catch (NumberFormatException ex) {
-                System.err.println("Invalid and/or malformatted date(s) entered");
-                System.exit(1);
-            } catch (ParseException ex) {
-                System.err.println("Invalid date(s) entered");
+                customer = project4.correctNameCasing(args[index]);
+                phoneBill = new PhoneBill(customer);
+                index += 1;
+            } else {
+                System.err.println("Cannot identify the customer name. " +
+                        "You may want to check the order and/or formatting of your arguments.");
                 System.exit(1);
             }
+            if (!search) {
+                if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
+                    callerNumber = args[index];
+                    index += 1;
+                } else {
+                    System.err.println("Cannot identify the caller and/or callee number. " +
+                            "You may want to check the order and/or formatting of your arguments.");
+                    System.exit(1);
+                }
+                if (args[index] != null && project4.isValidPhoneNumber(args[index])) {
+                    calleeNumber = args[index];
+                    index += 1;
+                } else {
+                    System.err.println("Cannot identify the caller and/or callee number. " +
+                            "You may want to check the order and/or formatting of your arguments.");
+                    System.exit(1);
+                }
+            }
+            if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
+                    project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
+                startTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                searchAfter = startTime;
+                index += 3;
+            } else {
+                System.err.println("Cannot identify the start time. " +
+                        "You may want to check the order and/or formatting of your arguments.");
+                System.exit(1);
+            }
+            if (args[index] != null && args[index + 1] != null && args[index + 2] != null &&
+                    project4.isValidDateAndTime(args[index], args[index + 1], args[index + 2].toUpperCase())) {
+                endTime = args[index] + " " + args[index + 1] + " " + args[index + 2];
+                searchBefore = endTime;
+                index += 3;
+            } else {
+                System.err.println("Cannot identify the end time. " +
+                        "You may want to check the order and/or formatting of your arguments.");
+                System.exit(1);
+            }
+            if (index < args.length) {
+                System.err.print("Extraneous and/or malformatted command line arguments");
+                System.exit(1);
+            }
+
+            phoneCall = new PhoneCall(callerNumber, calleeNumber, startTime, endTime);
+            phoneBill.addPhoneCall(phoneCall);
+
+            if (printCall)
+                System.out.println(phoneBill.getMostRecentPhoneCall().toString());
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            System.err.println("Missing and/or malformatted command line arguments");
+            System.exit(1);
+        } catch (NumberFormatException ex) {
+            System.err.println("Invalid and/or malformatted date(s) entered");
+            System.exit(1);
+        } catch (ParseException ex) {
+            System.err.println("Invalid date(s) entered");
+            System.exit(1);
         }
 
         if (hostFlag && portFlag) {
@@ -236,7 +226,6 @@ public class Project4 {
             }
             System.out.println(response.getContent());
         }
-
         System.exit(0);
     }
 
@@ -269,15 +258,15 @@ public class Project4 {
         PrintStream err = System.err;
         err.println("** " + message);
         err.println();
-        err.println("usage: java Project4 host port [key] [value]");
+        err.println("usage: java Project4 host port [customer] [phone call]");
         err.println("  host    Host of web server");
         err.println("  port    Port of web server");
-        err.println("  key     Key to query");
-        err.println("  value   Value to add to server");
+        err.println("  customer     Customer to query");
+        err.println("  phone call   Phone Call to add to server");
         err.println();
-        err.println("This simple program posts key/value pairs to the server");
-        err.println("If no value is specified, then all values are printed");
-        err.println("If no key is specified, all key/value pairs are printed");
+        err.println("This simple program posts customer/phone bill pairs to the server");
+        err.println("If no phone call is specified, then the phone bill is printed");
+        err.println("If no customer is specified, all customer/phone bill pairs are printed");
         err.println();
 
         System.exit(1);
@@ -406,9 +395,9 @@ public class Project4 {
                 "-print\t\t\t\tA description of some phone call. Entering this\n" +
                 "\t\t\t\t\toption at the command line will display the\n" +
                 "\t\t\t\t\tdescription of the most recently added phone call.\n" +
-                "-search\t\t\t\tThis option followed by a customer name, some\n" +
-                "\t\t\t\t\tstarting time and some ending time will return all\n" +
-                "\t\t\t\t\tof the calls started between those times.\n" +
+                "-search\t\t\t\tSupplementing this option with a customer name,\n" +
+                "\t\t\t\t\tsome starting time and some ending time will return\n" +
+                "\t\t\t\t\tall of the calls started between those times.\n" +
                 "-host <hostname>\tThe host computer on which the server runs.\n" +
                 "-port <port>\t\tThe port on which the server is listening.\n" +
                 "To add a calling event, the following arguments must be provided\n" +
@@ -428,7 +417,7 @@ public class Project4 {
                 "\n" +
                 "----------------------------------------------------------\n" +
                 "CS410J PROJECT 4: A REST-FULL PHONE BILL WEB SERVICE\n\n" +
-                "AUTHOR: KATHLEEN TRAN\nLAST MODIFIED: 7/28/2015\n\n");
+                "AUTHOR: KATHLEEN TRAN\nLAST MODIFIED: 7/30/2015\n\n");
         System.exit(1);
     }
 }
