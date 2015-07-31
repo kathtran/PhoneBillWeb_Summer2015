@@ -242,6 +242,11 @@ public class Project4 {
         }
     }
 
+    /**
+     * Prints the system error message.
+     *
+     * @param message some error
+     */
     private static void error(String message) {
         PrintStream err = System.err;
         err.println("** " + message);
@@ -280,7 +285,6 @@ public class Project4 {
      * the remaining letters are lower cased. Each part of the name is separated
      * by a single whitespace.
      */
-
     public String correctNameCasing(String nameInput) {
         @SuppressWarnings("all")
         String correctedName = new String();
