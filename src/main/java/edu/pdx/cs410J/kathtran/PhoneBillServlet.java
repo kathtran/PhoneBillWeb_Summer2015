@@ -12,8 +12,11 @@ import java.util.Map;
 
 /**
  * This servlet ultimately provides a REST API for working with an
- * <code>PhoneBill</code>.  However, in its current state, it is an example
- * of how to use HTTP and Java servlets to store simple key/value pairs.
+ * <code>PhoneBill</code>. The methods here support communication
+ * between the server and the client.
+ *
+ * @author Kathleen Tran
+ * @version 4.0
  */
 public class PhoneBillServlet extends HttpServlet {
     private final Map<String, PhoneBill> data = new HashMap<>();
